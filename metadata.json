@@ -1,0 +1,5 @@
+{
+  "name": "Add outline to image",
+  "description": "A simple, no-nonsense tool to add a customizable colored outline to your images. Upload an image with a transparent background, adjust the border width and color, and download the result instantly.",
+  "requestFramePermissions": []
+}

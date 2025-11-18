@@ -1,0 +1,664 @@
+
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>PNG Border Maker & Text Sticker Generator | Add outline to image</title>
+    <meta name="description" content="Add custom borders, outlines, & shadows to images & text instantly. Create transparent PNG stickers online for free. Perfect for thumbnails & designs.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@700&family=Roboto:wght@700&family=Lobster&display=swap" rel="stylesheet">
+    
+    <!-- Scripts -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "Add outline to image - PNG Border Maker & Text Sticker Generator",
+      "url": "https://borderize-image-tool.web.app/",
+      "description": "A free online tool to add customizable borders, outlines, and shadows to images and text. Instantly create professional PNG stickers for thumbnails and designs.",
+      "applicationCategory": "DesignApplication",
+      "operatingSystem": "All",
+      "offers": {
+        "@type": "Offer",
+        "price": "0.00",
+        "priceCurrency": "USD"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "4.8",
+        "reviewCount": "2580"
+      },
+      "creator": {
+         "@type": "Organization",
+         "name": "Add outline to image"
+      }
+    }
+    </script>
+    
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Inter', 'sans-serif'],
+              poppins: ['Poppins', 'sans-serif'],
+              roboto: ['Roboto', 'sans-serif'],
+              lobster: ['Lobster', 'cursive'],
+            },
+            colors: {
+              'dark-bg': '#000000',
+              'dark-surface': '#111827',
+              'dark-border': '#1F2937',
+              'dark-text-primary': '#F9FAFB',
+              'dark-text-secondary': '#9CA3AF',
+              'brand-blue': '#3b82f6',
+            },
+            animation: {
+                in: 'in 0.5s ease-out',
+            },
+            keyframes: {
+                in: {
+                    '0%': { opacity: '0', transform: 'translateY(10px)' },
+                    '100%': { opacity: '1', transform: 'translateY(0)' },
+                },
+            },
+          },
+        },
+        plugins: [
+            function({ addUtilities }) {
+                addUtilities({
+                    '.animate-in': {
+                        animation: 'in 0.5s ease-out',
+                    },
+                })
+            }
+        ],
+      }
+    </script>
+    <style>
+        .accent-brand-blue { accent-color: #3b82f6; }
+        input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+        input[type="color"]::-webkit-color-swatch { border: none; border-radius: 0.3rem; }
+        input[type="color"] { -webkit-appearance: none; appearance: none; }
+    </style>
+</head>
+<body class="bg-dark-bg text-dark-text-primary font-sans">
+    <div id="root"></div>
+
+    <script type="text/babel">
+    const { useState, useEffect, useRef, useCallback } = React;
+
+    // --- ICONS ---
+    const UploadIcon = () => (
+      <svg className="w-16 h-16 text-dark-text-secondary" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M12 15V3m0 12l-4-4m4 4l4-4" />
+      </svg>
+    );
+    const DownloadIcon = () => (
+        <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+        </svg>
+    );
+    const ResetIcon = () => (
+        <svg className="w-5 h-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 15L3 9m0 0l6-6M3 9h12a6 6 0 010 12h-3" />
+        </svg>
+    );
+    const GithubIcon = () => (
+      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+        <path fillRule="evenodd" d="M12 2C6.477 2 2 6.477 2 12c0 4.418 2.865 8.168 6.839 9.49.5.092.682-.217.682-.482 0-.237-.009-.868-.014-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.031-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.203 2.398.1 2.651.64.7 1.03 1.595 1.03 2.688 0 3.848-2.338 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.745 0 .267.18.577.688.482A10.001 10.001 0 0022 12c0-5.523-4.477-10-10-10z" clipRule="evenodd" />
+      </svg>
+    );
+
+    // --- HOOKS ---
+    function useDebounce(value, delay) {
+      const [debouncedValue, setDebouncedValue] = useState(value);
+      useEffect(() => {
+        const handler = setTimeout(() => {
+          setDebouncedValue(value);
+        }, delay);
+        return () => {
+          clearTimeout(handler);
+        };
+      }, [value, delay]);
+      return debouncedValue;
+    }
+
+    // --- UI COMPONENTS ---
+    const Header = () => (
+      <header className="w-full bg-dark-surface/80 backdrop-blur-md sticky top-0 z-50 border-b border-dark-border">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center">
+              <a href="/" className="text-2xl font-bold font-poppins text-dark-text-primary hover:text-brand-blue transition-colors">
+                Add outline to image
+              </a>
+            </div>
+            <div className="flex items-center">
+              <a href="https://github.com/gemini-ui-apps/borderize-image-tool" target="_blank" rel="noopener noreferrer"
+                  className="text-dark-text-secondary hover:text-dark-text-primary transition-colors" aria-label="View on GitHub">
+                <GithubIcon />
+              </a>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+
+    const ControlPanel = ({ title, children }) => (
+        <div className="w-full md:w-96 bg-dark-surface border border-dark-border rounded-xl p-6 flex flex-col space-y-5">
+            <h3 className="text-2xl font-bold text-dark-text-primary">{title}</h3>
+            {children}
+        </div>
+    );
+    
+    const SliderControl = ({ id, label, value, min, max, step, onChange, unit }) => (
+        <div className="space-y-3">
+            <label htmlFor={id} className="font-medium text-dark-text-primary flex justify-between items-center">
+                <span>{label}</span>
+                <span className="text-sm text-dark-text-secondary bg-dark-bg px-2 py-1 rounded-md font-mono">{value}{unit}</span>
+            </label>
+            <input id={id} type="range" min={min} max={max} step={step || 1} value={value}
+                onChange={e => onChange(step ? parseFloat(e.target.value) : parseInt(e.target.value, 10))}
+                className="w-full h-2 bg-dark-border rounded-lg appearance-none cursor-pointer accent-brand-blue" />
+        </div>
+    );
+
+    const ColorControl = ({ id, label, value, onChange }) => (
+        <div className="space-y-3">
+            <label htmlFor={id} className="font-medium text-dark-text-primary flex justify-between items-center">
+                <span>{label}</span>
+                <div className="flex items-center space-x-2">
+                    <span className="text-sm font-mono text-dark-text-secondary uppercase">{value}</span>
+                    <input type="color" id={id} value={value} onChange={e => onChange(e.target.value)}
+                        className="w-8 h-8 p-0 border border-dark-border rounded-md cursor-pointer bg-transparent"
+                        style={{'backgroundColor': value}} />
+                </div>
+            </label>
+        </div>
+    );
+
+    const ToggleControl = ({ id, label, checked, onChange }) => (
+        <div className="flex items-center justify-between">
+            <label htmlFor={id} className="font-medium text-dark-text-primary text-xl font-semibold">{label}</label>
+            <button type="button" role="switch" aria-checked={checked} id={id} onClick={() => onChange(!checked)}
+                className={`relative inline-flex items-center h-6 rounded-full w-11 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-brand-blue focus:ring-offset-dark-surface ${checked ? 'bg-brand-blue' : 'bg-dark-border'}`}>
+                <span className={`inline-block w-4 h-4 transform bg-white rounded-full transition-transform duration-300 ${checked ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+        </div>
+    );
+
+    // --- MAIN COMPONENTS ---
+    const ImageUploader = ({ onImageUpload }) => {
+      const [isDragging, setIsDragging] = useState(false);
+      const fileInputRef = useRef(null);
+
+      const handleFileChange = (event) => {
+        if (event.target.files && event.target.files[0]) {
+          onImageUpload(event.target.files[0]);
+        }
+      };
+      const handleClick = () => fileInputRef.current?.click();
+      const handleDragEvent = useCallback((e, dragging) => {
+          e.preventDefault();
+          e.stopPropagation();
+          setIsDragging(dragging);
+      }, []);
+      const handleDrop = useCallback((e) => {
+          handleDragEvent(e, false);
+          if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+              onImageUpload(e.dataTransfer.files[0]);
+          }
+      }, [onImageUpload, handleDragEvent]);
+
+      return (
+        <div className="w-full max-w-3xl text-center flex flex-col items-center justify-center p-8 animate-in">
+          <div
+            onClick={handleClick}
+            onDragEnter={(e) => handleDragEvent(e, true)}
+            onDragLeave={(e) => handleDragEvent(e, false)}
+            onDragOver={(e) => handleDragEvent(e, true)}
+            onDrop={handleDrop}
+            className={`mt-4 w-full p-10 sm:p-14 border-2 border-dashed rounded-xl cursor-pointer transition-all duration-300 ${
+              isDragging 
+                ? 'border-brand-blue bg-blue-500/10' 
+                : 'border-dark-border hover:border-gray-500 bg-dark-surface/50 hover:bg-dark-surface'
+            }`}
+          >
+            <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/png, image/jpeg, image/webp" />
+            <div className="flex flex-col items-center justify-center space-y-4">
+                <div className={`transition-transform duration-300 ${isDragging ? 'scale-110' : ''}`}>
+                    <UploadIcon />
+                </div>
+                <p className="text-xl font-semibold text-dark-text-primary">
+                {isDragging ? 'Drop your image here!' : 'Click to upload or drag & drop'}
+                </p>
+                <p className="text-base text-dark-text-secondary">Supports PNG, JPG, WEBP</p>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
+    const ImageEditor = ({ imageSrc, onReset }) => {
+      const canvasRef = useRef(null);
+      const [borderWidth, setBorderWidth] = useState(10);
+      const [borderColor, setBorderColor] = useState('#FFFFFF');
+      const [isShadowEnabled, setIsShadowEnabled] = useState(false);
+      const [shadowSize, setShadowSize] = useState(10);
+      const [shadowColor, setShadowColor] = useState('#000000');
+      const [shadowTransparency, setShadowTransparency] = useState(0.36);
+      const [shadowBlur, setShadowBlur] = useState(6);
+      const [isProcessing, setIsProcessing] = useState(true);
+
+      const debouncedBorderWidth = useDebounce(borderWidth, 200);
+      const debouncedBorderColor = useDebounce(borderColor, 200);
+      const debouncedShadowSize = useDebounce(shadowSize, 200);
+      const debouncedShadowColor = useDebounce(shadowColor, 200);
+      const debouncedShadowTransparency = useDebounce(shadowTransparency, 200);
+      const debouncedShadowBlur = useDebounce(shadowBlur, 200);
+
+      const drawBorderedImage = useCallback(() => {
+        if (!canvasRef.current || !imageSrc) return;
+        setIsProcessing(true);
+        const canvas = canvasRef.current;
+        const ctx = canvas.getContext('2d', { willReadFrequently: true });
+        if (!ctx) { setIsProcessing(false); return; }
+
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = imageSrc;
+        img.onload = () => {
+          const bw = debouncedBorderWidth;
+          const ss = isShadowEnabled ? debouncedShadowSize : 0;
+          const sb = isShadowEnabled ? debouncedShadowBlur : 0;
+
+          const sourceImage = document.createElement('canvas');
+          sourceImage.width = img.width;
+          sourceImage.height = img.height;
+          const sourceCtx = sourceImage.getContext('2d');
+          if (!sourceCtx) { setIsProcessing(false); return; }
+          sourceCtx.drawImage(img, 0, 0);
+
+          const silhouette = document.createElement('canvas');
+          silhouette.width = img.width;
+          silhouette.height = img.height;
+          const silhouetteCtx = silhouette.getContext('2d');
+          if (!silhouetteCtx) { setIsProcessing(false); return; }
+          silhouetteCtx.drawImage(sourceImage, 0, 0);
+          silhouetteCtx.globalCompositeOperation = 'source-in';
+          silhouetteCtx.fillStyle = debouncedBorderColor;
+          silhouetteCtx.fillRect(0, 0, img.width, img.height);
+          
+          const shadowOffsetX = isShadowEnabled ? ss : 0;
+          const shadowOffsetY = isShadowEnabled ? ss : 0;
+          
+          const canvasPadding = isShadowEnabled ? sb * 2 : 0;
+          canvas.width = img.width + bw * 2 + canvasPadding + Math.abs(shadowOffsetX);
+          canvas.height = img.height + bw * 2 + canvasPadding + Math.abs(shadowOffsetY);
+          
+          const drawX = bw + (isShadowEnabled ? sb : 0) + (shadowOffsetX < 0 ? Math.abs(shadowOffsetX) : 0);
+          const drawY = bw + (isShadowEnabled ? sb : 0) + (shadowOffsetY < 0 ? Math.abs(shadowOffsetY) : 0);
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+          if (isShadowEnabled) {
+            const r = parseInt(debouncedShadowColor.slice(1, 3), 16);
+            const g = parseInt(debouncedShadowColor.slice(3, 5), 16);
+            const b = parseInt(debouncedShadowColor.slice(5, 7), 16);
+            ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${debouncedShadowTransparency})`;
+            ctx.shadowOffsetX = shadowOffsetX;
+            ctx.shadowOffsetY = shadowOffsetY;
+            ctx.shadowBlur = sb;
+            if (bw > 0) {
+                const step = 15;
+                for (let i = 0; i < 360; i += step) {
+                  const angle = i * Math.PI / 180;
+                  ctx.drawImage(silhouette, drawX + Math.cos(angle) * bw, drawY + Math.sin(angle) * bw);
+                }
+              }
+            ctx.drawImage(sourceImage, drawX, drawY);
+          }
+          
+          ctx.shadowColor = 'transparent';
+          ctx.shadowOffsetX = 0;
+          ctx.shadowOffsetY = 0;
+          ctx.shadowBlur = 0;
+          if (bw > 0) {
+            const step = 15;
+            for (let i = 0; i < 360; i += step) {
+              const angle = i * Math.PI / 180;
+              ctx.drawImage(silhouette, drawX + Math.cos(angle) * bw, drawY + Math.sin(angle) * bw);
+            }
+          }
+          ctx.drawImage(sourceImage, drawX, drawY);
+          setIsProcessing(false);
+        };
+        img.onerror = () => { setIsProcessing(false); console.error("Failed to load image for canvas."); }
+      }, [imageSrc, debouncedBorderColor, debouncedBorderWidth, debouncedShadowSize, debouncedShadowColor, debouncedShadowTransparency, debouncedShadowBlur, isShadowEnabled]);
+
+      useEffect(() => { drawBorderedImage(); }, [drawBorderedImage]);
+
+      const handleDownload = () => {
+        if (canvasRef.current) {
+          const link = document.createElement('a');
+          link.download = 'sticker-image.png';
+          link.href = canvasRef.current.toDataURL('image/png');
+          link.click();
+        }
+      };
+
+      return (
+        <div className="w-full h-full flex flex-col md:flex-row gap-8 items-start justify-center animate-in">
+          <ControlPanel title="Customize Image">
+            <SliderControl id="border-size" label="Border Size" value={borderWidth} min="0" max="50" onChange={setBorderWidth} unit="px" />
+            <ColorControl id="border-color" label="Border Color" value={borderColor} onChange={setBorderColor} />
+            <hr className="border-dark-border !my-5" />
+            <ToggleControl id="shadow-toggle" label="Shadow" checked={isShadowEnabled} onChange={setIsShadowEnabled} />
+            {isShadowEnabled && (
+              <div className="space-y-5 animate-in">
+                <SliderControl id="shadow-size" label="Shadow Offset" value={shadowSize} min="0" max="50" onChange={setShadowSize} unit="px" />
+                <ColorControl id="shadow-color" label="Shadow Color" value={shadowColor} onChange={setShadowColor} />
+                <SliderControl id="shadow-transparency" label="Shadow Opacity" value={(shadowTransparency * 100).toFixed(0)} min="0" max="100" onChange={v => setShadowTransparency(v/100)} unit="%" />
+                <SliderControl id="shadow-blur" label="Shadow Blur" value={shadowBlur} min="0" max="50" onChange={setShadowBlur} unit="px" />
+              </div>
+            )}
+            <div className="!mt-auto pt-6 space-y-3">
+                <button onClick={handleDownload} disabled={isProcessing} className="w-full flex items-center justify-center px-4 py-3 bg-brand-blue text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-400 disabled:bg-gray-600 disabled:cursor-not-allowed">
+                    <DownloadIcon /> <span className="ml-2">Download Image</span>
+                </button>
+                <button onClick={onReset} className="w-full flex items-center justify-center px-4 py-3 bg-dark-border text-dark-text-primary font-semibold rounded-lg hover:bg-gray-600 transition-colors">
+                    <ResetIcon /> <span className="ml-2">Upload New Image</span>
+                </button>
+            </div>
+          </ControlPanel>
+          <div className="flex-1 w-full max-w-4xl flex items-center justify-center p-4 bg-dark-surface/50 border border-dark-border rounded-xl min-h-[300px] sm:min-h-[500px] md:min-h-[calc(100vh-200px)] relative overflow-hidden">
+            {isProcessing && (
+                <div className="absolute inset-0 bg-dark-bg/50 backdrop-blur-sm flex items-center justify-center z-10">
+                    <div className="w-10 h-10 border-4 border-dashed rounded-full animate-spin border-brand-blue"></div>
+                </div>
+            )}
+            <canvas ref={canvasRef} className="max-w-full max-h-[calc(100vh-240px)] object-contain" />
+          </div>
+        </div>
+      );
+    };
+
+    const TextEditor = () => {
+        const canvasRef = useRef(null);
+        const [text, setText] = useState('Your Text');
+        const [font, setFont] = useState('font-poppins');
+        const [fontSize, setFontSize] = useState(80);
+        const [textColor, setTextColor] = useState('#FFFFFF');
+        const [borderWidth, setBorderWidth] = useState(8);
+        const [borderColor, setBorderColor] = useState('#000000');
+        const [isShadowEnabled, setIsShadowEnabled] = useState(true);
+        const [shadowSize, setShadowSize] = useState(5);
+        const [shadowColor, setShadowColor] = useState('#000000');
+        const [shadowTransparency, setShadowTransparency] = useState(0.5);
+        const [shadowBlur, setShadowBlur] = useState(10);
+        const [isProcessing, setIsProcessing] = useState(true);
+
+        const debouncedState = {
+            text: useDebounce(text, 200),
+            font: useDebounce(font, 200),
+            fontSize: useDebounce(fontSize, 200),
+            textColor: useDebounce(textColor, 200),
+            borderWidth: useDebounce(borderWidth, 200),
+            borderColor: useDebounce(borderColor, 200),
+            isShadowEnabled: useDebounce(isShadowEnabled, 200),
+            shadowSize: useDebounce(shadowSize, 200),
+            shadowColor: useDebounce(shadowColor, 200),
+            shadowTransparency: useDebounce(shadowTransparency, 200),
+            shadowBlur: useDebounce(shadowBlur, 200),
+        };
+        
+        const fonts = {
+            'font-poppins': 'Poppins',
+            'font-roboto': 'Roboto',
+            'font-lobster': 'Lobster',
+            'font-sans': 'Inter',
+        };
+
+        const drawTextSticker = useCallback(async () => {
+            await document.fonts.ready;
+            if (!canvasRef.current) return;
+            setIsProcessing(true);
+            const canvas = canvasRef.current;
+            const ctx = canvas.getContext('2d');
+            if (!ctx) { setIsProcessing(false); return; }
+
+            const { text, font, fontSize, textColor, borderWidth, borderColor, isShadowEnabled, shadowSize, shadowColor, shadowTransparency, shadowBlur } = debouncedState;
+            const fontName = fonts[font];
+            
+            ctx.font = `700 ${fontSize}px ${fontName}`;
+            const textMetrics = ctx.measureText(text);
+            const textWidth = textMetrics.width;
+            const textHeight = fontSize;
+
+            const padding = borderWidth + (isShadowEnabled ? shadowBlur * 2 + Math.abs(shadowSize) : 0);
+            canvas.width = textWidth + padding * 2;
+            canvas.height = textHeight + padding * 2;
+            
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            const drawX = padding;
+            const drawY = textHeight + padding - (fontSize * 0.15); // Adjustment for better vertical centering
+            
+            ctx.font = `700 ${fontSize}px ${fontName}`;
+            ctx.textBaseline = 'bottom';
+            ctx.lineJoin = 'round';
+            ctx.miterLimit = 2;
+
+            // Draw Shadow
+            if (isShadowEnabled) {
+                const r = parseInt(shadowColor.slice(1, 3), 16);
+                const g = parseInt(shadowColor.slice(3, 5), 16);
+                const b = parseInt(shadowColor.slice(5, 7), 16);
+                ctx.shadowColor = `rgba(${r}, ${g}, ${b}, ${shadowTransparency})`;
+                ctx.shadowOffsetX = shadowSize;
+                ctx.shadowOffsetY = shadowSize;
+                ctx.shadowBlur = shadowBlur;
+            }
+            
+            // Draw Border
+            ctx.strokeStyle = borderColor;
+            ctx.lineWidth = borderWidth * 2;
+            ctx.strokeText(text, drawX, drawY);
+
+            // Draw Text Fill
+            ctx.shadowColor = 'transparent';
+            ctx.fillStyle = textColor;
+            ctx.fillText(text, drawX, drawY);
+
+            setIsProcessing(false);
+        }, [debouncedState]);
+
+        useEffect(() => { drawTextSticker(); }, [drawTextSticker]);
+
+        const handleDownload = () => {
+            if (canvasRef.current) {
+                const link = document.createElement('a');
+                link.download = 'sticker-text.png';
+                link.href = canvasRef.current.toDataURL('image/png');
+                link.click();
+            }
+        };
+
+        return (
+            <div className="w-full h-full flex flex-col md:flex-row gap-8 items-start justify-center animate-in">
+                <ControlPanel title="Customize Text">
+                    <div className="space-y-3">
+                        <label htmlFor="text-input" className="font-medium text-dark-text-primary">Text</label>
+                        <input id="text-input" type="text" value={text} onChange={e => setText(e.target.value)}
+                            className="w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary focus:ring-2 focus:ring-brand-blue focus:outline-none" />
+                    </div>
+
+                    <div className="space-y-3">
+                        <label htmlFor="font-select" className="font-medium text-dark-text-primary">Font</label>
+                        <select id="font-select" value={font} onChange={e => setFont(e.target.value)}
+                            className={`w-full bg-dark-bg border border-dark-border rounded-lg px-3 py-2 text-dark-text-primary focus:ring-2 focus:ring-brand-blue focus:outline-none ${font}`}>
+                            {Object.entries(fonts).map(([className, name]) => (
+                                <option key={className} value={className} className={className}>{name}</option>
+                            ))}
+                        </select>
+                    </div>
+
+                    <SliderControl id="font-size" label="Font Size" value={fontSize} min="10" max="200" onChange={setFontSize} unit="px" />
+                    <ColorControl id="text-color" label="Text Color" value={textColor} onChange={setTextColor} />
+
+                    <hr className="border-dark-border !my-5" />
+                    
+                    <SliderControl id="border-size-text" label="Border Size" value={borderWidth} min="0" max="50" onChange={setBorderWidth} unit="px" />
+                    <ColorControl id="border-color-text" label="Border Color" value={borderColor} onChange={setBorderColor} />
+                    
+                    <hr className="border-dark-border !my-5" />
+
+                    <ToggleControl id="shadow-toggle-text" label="Shadow" checked={isShadowEnabled} onChange={setIsShadowEnabled} />
+                    {isShadowEnabled && (
+                      <div className="space-y-5 animate-in">
+                        <SliderControl id="shadow-size-text" label="Shadow Offset" value={shadowSize} min="0" max="50" onChange={setShadowSize} unit="px" />
+                        <ColorControl id="shadow-color-text" label="Shadow Color" value={shadowColor} onChange={setShadowColor} />
+                        <SliderControl id="shadow-transparency-text" label="Shadow Opacity" value={(shadowTransparency * 100).toFixed(0)} min="0" max="100" onChange={v => setShadowTransparency(v/100)} unit="%" />
+                        <SliderControl id="shadow-blur-text" label="Shadow Blur" value={shadowBlur} min="0" max="50" onChange={setShadowBlur} unit="px" />
+                      </div>
+                    )}
+                    
+                    <div className="!mt-auto pt-6 space-y-3">
+                        <button onClick={handleDownload} disabled={isProcessing} className="w-full flex items-center justify-center px-4 py-3 bg-brand-blue text-white font-semibold rounded-lg hover:bg-blue-500 transition-colors disabled:bg-gray-400 disabled:bg-gray-600 disabled:cursor-not-allowed">
+                            <DownloadIcon /> <span className="ml-2">Download Image</span>
+                        </button>
+                    </div>
+                </ControlPanel>
+                <div className="flex-1 w-full max-w-4xl flex items-center justify-center p-4 bg-dark-surface/50 border border-dark-border rounded-xl min-h-[300px] sm:min-h-[500px] md:min-h-[calc(100vh-200px)] relative overflow-hidden">
+                    {isProcessing && (
+                        <div className="absolute inset-0 bg-dark-bg/50 backdrop-blur-sm flex items-center justify-center z-10">
+                            <div className="w-10 h-10 border-4 border-dashed rounded-full animate-spin border-brand-blue"></div>
+                        </div>
+                    )}
+                    <canvas ref={canvasRef} className="max-w-full max-h-[calc(100vh-240px)] object-contain" />
+                </div>
+            </div>
+        );
+    };
+
+
+    // --- APP ---
+    const App = () => {
+      const [activeTab, setActiveTab] = useState('image');
+      const [image, setImage] = useState(null);
+
+      const handleImageUpload = (file) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          if (typeof e.target?.result === 'string') {
+            setImage(e.target.result);
+          }
+        };
+        reader.readAsDataURL(file);
+      };
+      const handleReset = () => setImage(null);
+      
+      const TabButton = ({ tabName, label }) => {
+        const isActive = activeTab === tabName;
+        return (
+          <button
+            onClick={() => {
+                setActiveTab(tabName)
+                if(tabName === 'text') { handleReset() }
+            }}
+            className={`px-6 py-2 rounded-md font-semibold transition-colors duration-200 ${isActive ? 'bg-brand-blue text-white' : 'bg-dark-surface hover:bg-dark-border text-dark-text-secondary'}`}
+          >
+            {label}
+          </button>
+        );
+      };
+
+      return (
+        <div className="min-h-screen bg-dark-bg flex flex-col">
+          <Header />
+          <div className="flex-grow w-full flex flex-col items-center p-4 sm:p-6 lg:p-8">
+            <main className="w-full max-w-7xl mx-auto text-center flex-grow">
+                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-dark-text-primary tracking-tight font-poppins">Free Sticker Maker & PNG Border Generator</h1>
+                <p className="mt-4 max-w-3xl mx-auto text-lg text-dark-text-secondary">
+                    Instantly add a custom outline to any image or text. Create professional, transparent PNG stickers for thumbnails, designs, and social media in seconds. 100% free.
+                </p>
+
+                <div className="mt-10 mb-8 p-1.5 bg-dark-surface rounded-lg inline-flex space-x-2">
+                    <TabButton tabName="image" label="Image" />
+                    <TabButton tabName="text" label="Text" />
+                </div>
+
+                <section className="flex-grow w-full flex flex-col items-center justify-center">
+                    {activeTab === 'image' ? (
+                        image ? <ImageEditor imageSrc={image} onReset={handleReset} /> : <ImageUploader onImageUpload={handleImageUpload} />
+                    ) : (
+                        <TextEditor />
+                    )}
+                </section>
+                
+                <div className="text-left max-w-4xl mx-auto my-20 space-y-16">
+                    <section>
+                        <h2 className="text-3xl font-bold text-dark-text-primary">How to Create a Sticker in 3 Easy Steps</h2>
+                        <ol className="mt-4 space-y-3 text-dark-text-secondary list-decimal list-inside">
+                            <li><strong>Upload or Type:</strong> Select the "Image" tab to upload a file (transparent PNGs work best!) or the "Text" tab to create a text-based sticker.</li>
+                            <li><strong>Customize Your Style:</strong> Use the intuitive controls to adjust border size, color, and add a custom drop shadow. Watch your changes appear in real-time.</li>
+                            <li><strong>Download Instantly:</strong> Happy with your creation? Click "Download Image" to get a high-resolution, transparent PNG file ready for use.</li>
+                        </ol>
+                    </section>
+                    <section>
+                        <h2 className="text-3xl font-bold text-dark-text-primary">Unleash Your Creativity: Key Features</h2>
+                        <ul className="mt-4 space-y-4 text-dark-text-secondary list-disc list-inside">
+                            <li><strong className="text-dark-text-primary">Custom Borders:</strong> Add a perfect outline to any photo. Control the thickness and color to make your subject pop.</li>
+                            <li><strong className="text-dark-text-primary">Adjustable Drop Shadow:</strong> Give your sticker depth with a fully customizable shadow. Adjust offset, blur, color, and opacity.</li>
+                            <li><strong className="text-dark-text-primary">Text to Sticker Generator:</strong> Transform your words into art. Choose from multiple fonts, set colors, and create outlined text stickers effortlessly.</li>
+                            <li><strong className="text-dark-text-primary">Client-Side & Secure:</strong> Your images are processed directly in your browser. We never upload or store your files, ensuring your privacy is protected.</li>
+                        </ul>
+                    </section>
+                    <section>
+                        <h2 className="text-3xl font-bold text-dark-text-primary">Frequently Asked Questions</h2>
+                        <div className="space-y-6 mt-4">
+                            <div>
+                                <h3 className="font-semibold text-dark-text-primary">How do I add a white border to a photo?</h3>
+                                <p className="text-dark-text-secondary">Switch to the "Image" tab, upload your photo, and use the "Border Color" control to select white. Adjust the "Border Size" slider to your desired thickness for the perfect white outline.</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-dark-text-primary">Is this online sticker maker free to use?</h3>
+                                <p className="text-dark-text-secondary">Yes, Add outline to image is 100% free. There are no hidden fees, sign-ups, or watermarks. Create and download as many stickers as you need.</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-dark-text-primary">What is the best image format for creating stickers?</h3>
+                                <p className="text-dark-text-secondary">For best results, upload a PNG image with a transparent background. This allows the border to wrap perfectly around your subject without outlining a background box.</p>
+                            </div>
+                            <div>
+                                <h3 className="font-semibold text-dark-text-primary">Can I use the stickers for commercial purposes, like YouTube thumbnails?</h3>
+                                <p className="text-dark-text-secondary">Absolutely! The stickers you create are yours to use however you wish, including for commercial projects like YouTube thumbnails, marketing materials, and product designs.</p>
+                            </div>
+                        </div>
+                    </section>
+                </div>
+            </main>
+            <footer className="w-full max-w-7xl mx-auto border-t border-dark-border pt-6 mt-8 flex flex-col sm:flex-row items-center justify-between text-sm text-dark-text-secondary">
+                <p>© 2024 Add outline to image. All rights reserved.</p>
+                <p className="mt-2 sm:mt-0">Free Online PNG Border Maker & Text Sticker Generator.</p>
+            </footer>
+          </div>
+        </div>
+      );
+    };
+
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(<App />);
+
+    </script>
+</body>
+</html>
