@@ -135,12 +135,12 @@
     }
 
     // --- UI COMPONENTS ---
-    const Header = () => (
+    const Header = ({ onHomeClick }) => (
       <header className="w-full bg-dark-surface/80 backdrop-blur-md sticky top-0 z-50 border-b border-dark-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center">
-              <a href="/" className="text-2xl font-bold font-poppins text-dark-text-primary hover:text-brand-blue transition-colors">
+              <a href="/" onClick={(e) => { e.preventDefault(); onHomeClick(); }} className="text-2xl font-bold font-poppins text-dark-text-primary hover:text-brand-blue transition-colors">
                 Add outline to image
               </a>
             </div>
@@ -567,6 +567,11 @@
         reader.readAsDataURL(file);
       };
       const handleReset = () => setImage(null);
+
+      const goHome = () => {
+        setImage(null);
+        setActiveTab('image');
+      }
       
       const TabButton = ({ tabName, label }) => {
         const isActive = activeTab === tabName;
@@ -585,7 +590,7 @@
 
       return (
         <div className="min-h-screen bg-dark-bg flex flex-col">
-          <Header />
+          <Header onHomeClick={goHome} />
           <div className="flex-grow w-full flex flex-col items-center p-4 sm:p-6 lg:p-8">
             <main className="w-full max-w-7xl mx-auto text-center flex-grow">
                 <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-dark-text-primary tracking-tight font-poppins">Free Sticker Maker & PNG Border Generator</h1>
